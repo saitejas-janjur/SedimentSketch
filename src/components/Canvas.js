@@ -1,33 +1,48 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Stage, Layer, Line, Image } from 'react-konva';
 import useImage from 'use-image';
 
 const Canvas = ({ image, brushColor, brushSize, lines, setLines }) => {
-  const [imageSrc] = useImage(image);
+  const [imageSrc, status] = useImage(image);
+  const [imgDimensions, setImgDimensions] = useState({ width: 0, height: 0 });
   const isDrawing = useRef(false);
   const stageRef = useRef();
 
-  // Function to start drawing
-  const handleMouseDown = (e) => {
-    isDrawing.current = true;
-    const pos = e.target.getStage().getPointerPosition();
-    setLines([...lines, { tool: 'pen', points: [pos.x, pos.y], color: brushColor, size: brushSize }]);
+  useEffect(() => {
+    if (status === 'loaded') {
+      // Assuming the image isn't scaled; adjust as necessary.
+      setImgDimensions({ width: imageSrc.width, height: imageSrc.height });
+    }
+  }, [imageSrc, status]);
+
+  const isWithinImageBounds = (x, y) => {
+    const imgX = 70; // Image X offset
+    const imgY = 0; // Image Y offset, assuming it's 0
+    // Check if within bounds
+    return x >= imgX && x <= imgX + imgDimensions.width && y >= imgY && y <= imgY + imgDimensions.height;
   };
 
-  // Function to draw lines
+  const handleMouseDown = (e) => {
+    const pos = e.target.getStage().getPointerPosition();
+    if (isWithinImageBounds(pos.x, pos.y)) {
+      isDrawing.current = true;
+      setLines([...lines, { tool: 'pen', points: [pos.x, pos.y], color: brushColor, size: brushSize }]);
+    }
+  };
+
   const handleMouseMove = (e) => {
     if (!isDrawing.current) {
       return;
     }
-    const stage = e.target.getStage();
-    const point = stage.getPointerPosition();
-    let lastLine = lines[lines.length - 1];
-    // Add point
-    lastLine.points = lastLine.points.concat([point.x, point.y]);
-
-    // Replace last
-    lines.splice(lines.length - 1, 1, lastLine);
-    setLines(lines.concat());
+    const pos = e.target.getStage().getPointerPosition();
+    if (isWithinImageBounds(pos.x, pos.y)) {
+      let lastLine = lines[lines.length - 1];
+      lastLine.points = lastLine.points.concat([pos.x, pos.y]);
+      lines.splice(lines.length - 1, 1, lastLine);
+      setLines(lines.concat());
+    } else {
+      isDrawing.current = false; // Stop drawing if moved outside bounds
+    }
   };
 
   // Function to stop drawing
@@ -40,17 +55,13 @@ const Canvas = ({ image, brushColor, brushSize, lines, setLines }) => {
       return;
     }
     const stage = stageRef.current;
-    // Adjust canvas size to image size for better drawing experience
-    const container = stage.container();
-    container.style.width = '100%';
-    container.style.height = '100%';
-    stage.width(stage.container().offsetWidth);
-    stage.height(stage.container().offsetHeight);
-  }, [imageSrc]);
+    stage.width(imgDimensions.width + 70); // Adjust stage size based on image size + offset
+    stage.height(imgDimensions.height);
+  }, [imgDimensions]);
 
   return (
     <Stage
-      width={window.innerWidth} // You might want to use a dynamic width and height based on the image size or container
+      width={window.innerWidth}
       height={window.innerHeight}
       onMouseDown={handleMouseDown}
       onMousemove={handleMouseMove}
@@ -58,7 +69,7 @@ const Canvas = ({ image, brushColor, brushSize, lines, setLines }) => {
       ref={stageRef}
     >
       <Layer>
-        <Image image={imageSrc} x = {70}/>
+        <Image image={imageSrc} x={70} />
         {lines.map((line, i) => (
           <Line
             key={i}
