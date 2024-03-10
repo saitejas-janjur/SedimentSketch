@@ -67,12 +67,18 @@ function App() {
                 brushSize={brushSize}
                 setBrushSize={setBrushSize}
               />
-              <button onClick={clearCanvas}>Clear Canvas</button>
+              <button onClick={clearCanvas} style={{ backgroundColor: '#D0A443', color: 'white', border: '2px solid black', padding: '10px 20px', cursor: 'pointer', fontSize: '16px', margin: '5px', borderRadius: '5px' }}>
+                Clear Canvas
+              </button>
             </div>
           </div>
           <div className="image-options">
-            <button onClick={downloadCoordinates}>Download Coordinates</button>
-            <button onClick={uploadNewImage}>Upload New Image</button>
+          <button onClick={uploadNewImage} style={{ backgroundColor: '#8B4513', color: 'white', border: '2px solid black', padding: '10px 20px', cursor: 'pointer', fontSize: '16px', margin: '5px', borderRadius: '5px' }}>
+            Upload New Image
+          </button>
+          <button onClick={downloadCoordinates} style={{ backgroundColor: '#8B4513', color: 'white', border: '2px solid black', padding: '10px 20px', cursor: 'pointer', fontSize: '16px', margin: '5px', borderRadius: '5px' }}>
+            Download Coordinates
+          </button>
           </div>
         </>
       ) : (

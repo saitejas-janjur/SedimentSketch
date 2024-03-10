@@ -52,18 +52,19 @@ body {
   }
   
   .options-container {
-    width: 200px; /* Fixed width for options box */
-    flex-shrink: 0; /* Prevents the options box from shrinking */
+    width: 200px; 
+    /* height: 200px; */
+    flex-shrink: 0; 
     display: flex;
     flex-direction: column;
-    align-items: center; /* Center-align the options */
-    gap: 10px; /* Space between options */
+    align-items: center; 
+    gap: 10px; 
     padding: 20px;
-    background-color: #8B4513; /* Solid background color, medium shade of brown */
-    color: white; /* White text */
-    border-radius: 8px; /* Optional: adds rounded corners to the options box */
-    margin-top: 50px; /* Adjust margin-top as needed */
-    border: none; /* Removes border if you prefer a solid look without the border */
+    background-color: #8B4513;
+    color: white;
+    border-radius: 8px; 
+    margin-top: 50px; 
+    border: none; 
   }
 
   .image-options {
