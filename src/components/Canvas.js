@@ -2,11 +2,13 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Stage, Layer, Line, Image } from 'react-konva';
 import useImage from 'use-image';
 
+
 const Canvas = ({ image, brushColor, brushSize, lines, setLines }) => {
-  const [imageSrc, status] = useImage(image);
-  const [imgDimensions, setImgDimensions] = useState({ width: 0, height: 0 });
+  const [imageSrc] = useImage(image);
   const isDrawing = useRef(false);
   const stageRef = useRef();
+  const resizedDimensions = { width: 900, height: 350 };
+
 
   useEffect(() => {
     if (status === 'loaded') {
@@ -16,10 +18,10 @@ const Canvas = ({ image, brushColor, brushSize, lines, setLines }) => {
   }, [imageSrc, status]);
 
   const isWithinImageBounds = (x, y) => {
-    const imgX = 70; // Image X offset
-    const imgY = 0; // Image Y offset, assuming it's 0
-    // Check if within bounds
-    return x >= imgX && x <= imgX + imgDimensions.width && y >= imgY && y <= imgY + imgDimensions.height;
+    const imgX = 70; // Image X offset (assuming the same offset as before)
+    const imgY = 0; // Image Y offset, assuming it's 0 for simplicity
+    // Check if within bounds using resized dimensions
+    return x >= imgX && x <= imgX + resizedDimensions.width && y >= imgY && y <= imgY + resizedDimensions.height;
   };
 
   const handleMouseDown = (e) => {
@@ -55,13 +57,15 @@ const Canvas = ({ image, brushColor, brushSize, lines, setLines }) => {
       return;
     }
     const stage = stageRef.current;
-    stage.width(imgDimensions.width + 70); // Adjust stage size based on image size + offset
-    stage.height(imgDimensions.height);
-  }, [imgDimensions]);
+    // Here, consider adjusting the stage size to better fit the resized image and any UI elements around it
+    // This might be a fixed size or based on the viewport dimensions
+    stage.width(resizedDimensions.width + 70); // Optionally adjust based on layout needs
+    stage.height(resizedDimensions.height);
+  }, [imageSrc]);
 
   return (
     <Stage
-      width={window.innerWidth}
+      width={window.innerWidth} // Consider adjusting this if you want a different layout
       height={window.innerHeight}
       onMouseDown={handleMouseDown}
       onMousemove={handleMouseMove}
@@ -69,7 +73,7 @@ const Canvas = ({ image, brushColor, brushSize, lines, setLines }) => {
       ref={stageRef}
     >
       <Layer>
-        <Image image={imageSrc} x={70} />
+        <Image image={imageSrc} x={70} width={resizedDimensions.width} height={resizedDimensions.height} />
         {lines.map((line, i) => (
           <Line
             key={i}
