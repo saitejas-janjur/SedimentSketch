@@ -1,38 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import FileUpload from './components/FileUpload';
 import Canvas from './components/Canvas';
 import BrushOptions from './components/BrushOptions';
 import './index.css';
 
 function App() {
-  const [image, setImage] = useState(null); // Store the uploaded image
-  const [brushColor, setBrushColor] = useState('#000000'); // Default brush color
-  const [brushSize, setBrushSize] = useState(5); // Default brush size
-  const [lines, setLines] = useState([]); // Store drawn lines
+  const [image, setImage] = useState(null);
+  const [brushColor, setBrushColor] = useState('#000000');
+  const [brushSize, setBrushSize] = useState(5);
+  const [lines, setLines] = useState([]);
+  const fileInputRef = useRef(null); // Reference to the hidden file input
 
-  // Function to clear the canvas
   const clearCanvas = () => {
     setLines([]);
   };
 
-  const clearImage = () => {
-    setImage(null); // Clear the image
-    setLines([]); // Clear the drawing lines
+  const onFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => setImage(e.target.result);
+      reader.readAsDataURL(file);
+      setLines([]); // Optionally clear lines here if you want a fresh canvas for the new image
+    }
   };
 
-  // Function to download the coordinates
+  const uploadNewImage = () => {
+    fileInputRef.current.click(); // Trigger file input click
+  };
+
   const downloadCoordinates = () => {
     const element = document.createElement("a");
     const file = new Blob([lines.map(line => line.points.join(',')).join('\n')], { type: 'text/plain' });
     element.href = URL.createObjectURL(file);
     element.download = "coordinates.txt";
-    document.body.appendChild(element); // Required for FireFox
+    document.body.appendChild(element);
     element.click();
   };
 
   return (
     <div className="App">
       <div className="header-bar">SedimentSketch</div>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={onFileChange}
+        ref={fileInputRef}
+        style={{ display: 'none' }} // Hide the file input
+      />
       {image ? (
         <>
           <div className="editor-container">
@@ -57,7 +72,7 @@ function App() {
           </div>
           <div className="image-options">
             <button onClick={downloadCoordinates}>Download Coordinates</button>
-            <button onClick={clearImage}>Upload New Image</button>
+            <button onClick={uploadNewImage}>Upload New Image</button>
           </div>
         </>
       ) : (
